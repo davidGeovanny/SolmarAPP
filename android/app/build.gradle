@@ -84,6 +84,16 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        ndk {
+            //-> Asegurar alineación de segmentos ELF a 16 KB
+            abiFilters "arm64-v8a", "x86_64"
+        }
+    }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false //-> Obligatorio para habilitar soporte 16 KB page size
+        }
     }
     signingConfigs {
         debug {

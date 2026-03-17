@@ -1,45 +1,30 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { use } from 'react';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import { toastConfig } from './src/shared/components/ui/Toast';
+import RootNavigator from './src/app/navigation/RootNavigator';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+const AppContent = () => {
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
+    <>
+      <RootNavigator />
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
+      {/* Es importante que el Toast sea el último componente */}
+      <Toast
+        config={ toastConfig }
+        topOffset={insets.top + 88} // 88 es la altura del TopBar + margen
+        bottomOffset={32}
       />
-    </View>
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+const App = () => (
+  <SafeAreaProvider>
+    <AppContent />
+  </SafeAreaProvider>
+);
 
 export default App;
