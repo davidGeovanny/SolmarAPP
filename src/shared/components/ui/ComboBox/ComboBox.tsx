@@ -14,9 +14,9 @@ import ComboBoxList from './ComboBoxList';
 import { useComboOpen } from '@/shared/context/ComboOpenContext';
 import type { ComboBoxProps } from './ComboBox.types';
 
-import IcSearch  from '@/assets/icons/ui/search.png';
-import IcClear   from '@/assets/icons/ui/clear.png';
-import IcRefresh from '@/assets/icons/ui/ic_refresh.svg';
+import IcSearch from '@/assets/icons/ui/search.svg';
+import IcClear   from '@/assets/icons/ui/clear.svg';
+// import IcRefresh from '@/assets/icons/ui/ic_refresh.svg';
 
 function ComboBox<T>({
   data,
@@ -33,9 +33,14 @@ function ComboBox<T>({
   excludeSelected = false,
   hasError        = false,
   variant         = 'glass',
+  iconColor,
   useModal        = false,
   debounceMs      = 300,
 }: ComboBoxProps<T>) {
+  // Color de íconos: usa el prop si se pasa, si no infiere según variante
+  const resolvedIconColor = iconColor
+    ?? (variant === 'outline' ? '#64748B' : 'rgba(255,255,255,0.7)');
+
   const [isOpen,       setIsOpen]       = useState(false);
   const [inputText,    setInputText]    = useState('');
   const [filteredData, setFilteredData] = useState<T[]>(data);
@@ -199,7 +204,7 @@ function ComboBox<T>({
   // ── \u00cdcono derecho ─────────────────────────────────────────────────────
   const renderRightIcon = () => {
     if (isLoading) {
-      return <ActivityIndicator size='small' color='rgba(255,255,255,0.7)' style={ styles.iconButton } />;
+      return <ActivityIndicator size='small' color={resolvedIconColor} style={ styles.iconButton } />;
     }
 
     return (
@@ -212,11 +217,7 @@ function ComboBox<T>({
             activeOpacity={ 0.7 }
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Image
-              source={ IcClear }
-              style={{ width: 16, height: 16, tintColor: 'rgba(255,255,255,0.7)' }}
-              resizeMode='contain'
-            />
+            <IcClear width={16} height={16} color={resolvedIconColor} />
           </TouchableOpacity>
         ) : null}
 
@@ -228,11 +229,7 @@ function ComboBox<T>({
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           {icon ?? (
-            <Image
-              source={ IcSearch }
-              style={{ width: 18, height: 18, tintColor: 'rgba(255,255,255,0.7)' }}
-              resizeMode='contain'
-            />
+            <IcSearch width={18} height={18} color={resolvedIconColor} />
           )}
         </TouchableOpacity>
       </>
@@ -295,6 +292,7 @@ function ComboBox<T>({
           collapsable={false}
           style={[
             styles.inputContainer,
+            variant === 'outline'     && styles.inputContainerOutline,
             variant === 'transparent' && styles.inputContainerTransparent,
             hasError  && styles.inputContainerError,
             isLoading && styles.inputContainerDisabled,
@@ -309,7 +307,11 @@ function ComboBox<T>({
             placeholder={placeholder}
             placeholderTextColor="rgba(255,255,255,0.5)"
             editable={mode === 'search' && !isLoading}
-            style={[styles.textInput, variant === 'transparent' && styles.textInputTransparent]}
+            style={[
+              styles.textInput,
+              variant === 'outline'     && styles.textInputOutline,
+              variant === 'transparent' && styles.textInputTransparent,
+            ]}
             returnKeyType="done"
           />
           {renderRightIcon()}

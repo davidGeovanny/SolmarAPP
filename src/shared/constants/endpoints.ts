@@ -1,4 +1,5 @@
-export const BASE_URL = 'https://qaservicios.atica.mx/ServicesApplications.asmx';
+// export const BASE_URL = 'https://qaservicios.atica.mx/ServicesApplications.asmx';
+export const BASE_URL = 'https://servicioserp.solmar.com/ServicesApplications.asmx';
 
 export const ENDPOINTS = {
   auth: `${ BASE_URL }/auth`,

@@ -1,15 +1,170 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ScreenHeader from '@/shared/components/layout/ScreenHeader';
+import DistribucionFiltrosBar from '../components/DistribucionFiltros';
+import DistribucionListItem from '../components/DistribucionListItem';
+import { useRecepcionDistribucion } from '../hooks/useRecepcionDistribucion';
+import type { DistribucionItem } from '../types';
 
-const RecepcionDistribucionScreen = () => (
-  <View style={styles.container}>
-    <Text style={styles.text}>RecepcionDistribucion</Text>
-  </View>
-);
+type StackParams = {
+  RecepcionDistribucion:     undefined;
+  RecepcionDistribucionForm: { item: DistribucionItem };
+};
+
+const RecepcionDistribucionScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<StackParams>>();
+  const {
+    items,
+    isLoading,
+    filtros,
+    handleEstatusChange,
+    handleAnioChange,
+    handleMesChange,
+    handleFolioTipoChange,
+    handleFolioValorChange,
+    aplicarFiltros,
+  } = useRecepcionDistribucion();
+
+  const esRecibidas = filtros.estatus === 'Recibidas';
+
+  useEffect(() => {
+    aplicarFiltros();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleItemPress = (item: DistribucionItem) => {
+    if (isLoading) return;
+    navigation.navigate('RecepcionDistribucionForm', { item });
+  };
+
+  const handlePdf = (_item: DistribucionItem) => {
+    // TODO: descargar PDF de recepción
+  };
+
+  const handleExportar = () => {
+    // TODO: exportar listado
+  };
+
+  return (
+    <View style={styles.root}>
+
+      {/* Zona de filtros — zIndex alto para que el listado del combo flote sobre el grid */}
+      <View style={styles.topZone}>
+        <ScreenHeader title="Recepción de Distribución" />
+        <DistribucionFiltrosBar
+          filtros={filtros}
+          onEstatusChange={handleEstatusChange}
+          onAnioChange={handleAnioChange}
+          onMesChange={handleMesChange}
+          onFolioTipoChange={handleFolioTipoChange}
+          onFolioValorChange={handleFolioValorChange}
+          onAplicar={aplicarFiltros}
+          onExportar={handleExportar}
+        />
+      </View>
+
+      {/* Encabezado de columnas */}
+      <View style={styles.tableHeader}>
+        <Text style={[styles.headerCell, { flex: 1.6 }]}>
+          {esRecibidas ? 'Folios' : 'F. Distribución'}
+        </Text>
+        <Text style={[styles.headerCell, { flex: 1 }]}>Fecha</Text>
+        {esRecibidas && <View style={{ width: 26 }} />}
+        <View style={{ width: 20 }} />
+      </View>
+
+      {/* Lista con RefreshControl nativo */}
+      <View style={styles.listContainer}>
+        {items.length === 0 && !isLoading ? (
+          <View style={styles.centered}>
+            <Text style={styles.emptyText}>Sin resultados</Text>
+          </View>
+        ) : (
+          <FlashList
+            data={items}
+            keyExtractor={item => item.ID_OrdenDistribucion}
+            renderItem={({ item, index }) => (
+              <DistribucionListItem
+                item={item}
+                index={index}
+                estatus={filtros.estatus}
+                onPress={handleItemPress}
+                onPdf={handlePdf}
+              />
+            )}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={isLoading}
+                onRefresh={aplicarFiltros}
+                colors={['#1C57B5']}
+                tintColor="#1C57B5"
+              />
+            }
+          />
+        )}
+
+        {/* Overlay semitransparente — bloquea toques durante la carga */}
+        {isLoading && (
+          <View style={styles.loadingOverlay} pointerEvents="box-only" />
+        )}
+      </View>
+
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F5F7FA' },
-  text:      { fontSize: 18, color: '#374151', fontWeight: '500' },
+  root: {
+    flex:            1,
+    backgroundColor: '#F8FAFC',
+  },
+  topZone: {
+    // zIndex:    10,
+    // elevation: 10,
+  },
+  tableHeader: {
+    flexDirection:     'row',
+    alignItems:        'center',
+    paddingHorizontal: 16,
+    paddingVertical:   10,
+    borderBottomWidth: 2,
+    borderBottomColor: '#E2E8F0',
+    backgroundColor:   '#FFFFFF',
+    gap:               8,
+  },
+  headerCell: {
+    fontSize:      12,
+    fontWeight:    '500',
+    color:         '#94A3B8',
+    letterSpacing: 0.2,
+  },
+  listContainer: {
+    flex: 1,
+  },
+  centered: {
+    flex:           1,
+    alignItems:     'center',
+    justifyContent: 'center',
+    paddingTop:     60,
+  },
+  emptyText: {
+    fontSize: 15,
+    color:    '#94A3B8',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(248,250,252,0.5)',
+  },
 });
 
 export default RecepcionDistribucionScreen;

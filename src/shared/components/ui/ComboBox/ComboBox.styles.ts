@@ -54,6 +54,21 @@ export const comboBoxStyles = StyleSheet.create({
     padding:    2,
   },
 
+  // ── Variante outline (filtros sobre fondo blanco) ────────────────────
+  // Sin fondo propio — el contorno lo pone el contenedor padre.
+  // Texto oscuro para ser visible sobre fondos claros.
+  inputContainerOutline: {
+    backgroundColor: 'transparent',
+    borderWidth:     0,
+    height:          38,
+    paddingHorizontal: 4,
+  },
+  textInputOutline: {
+    color:      '#1E293B',
+    fontSize:   13,
+    fontWeight: '400',
+  },
+
   // ── Variante transparent (TopBar) ─────────────────────────────────────
   // Sin fondo ni borde — el combo se mimetiza con el color del TopBar
   inputContainerTransparent: {

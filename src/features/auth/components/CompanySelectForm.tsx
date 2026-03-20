@@ -12,6 +12,7 @@ import { useCompanySelect } from '../hooks/useCompanySelect';
 import type { Empresa, Sucursal } from '../hooks/useCompanySelect';
 
 import IcArrowRight from '@/assets/icons/ui/back.png';
+import IcLogin from '@/assets/icons/ui/submit.png';
 
 // ─── Configuración de campos para cada combo ──────────────────────────────────
 
@@ -104,7 +105,7 @@ const CompanySelectForm: React.FC<Props> = ({ onSuccess }) => {
         ) : (
           <>
             <Text style={styles.submitText}>Ingresar</Text>
-            <Image source={IcArrowRight} style={styles.submitArrow} resizeMode="contain" />
+            <Image source={IcLogin} style={styles.submitArrow} resizeMode="contain" />
           </>
         )}
       </TouchableOpacity>
@@ -154,6 +155,8 @@ const styles = StyleSheet.create({
   submitArrow: {
     width: 20,
     height: 20,
+    position: 'absolute',
+    right: 20,
   },
 });
 

@@ -2,7 +2,8 @@
 
 export type ComboBoxVariant =
   | 'glass'        // default: fondo semitransparente, borde blanco (pantallas auth)
-  | 'transparent'; // sin fondo ni borde, texto y lupa blancos (TopBar)
+  | 'outline'      // sin fondo propio, texto oscuro (filtros sobre fondo blanco)
+  | 'transparent'; // sin fondo ni borde, texto blanco (TopBar)
 
 // ─── Dirección del listado ────────────────────────────────────────────────────
 
@@ -59,6 +60,8 @@ export interface ComboBoxProps<T> {
   hasError?: boolean;
   /** Variante visual del input. default: 'glass' */
   variant?: ComboBoxVariant;
+  /** Color de los íconos (lupa, X). Si no se pasa, se infiere de la variante */
+  iconColor?: string;
   /**
    * Si true, renderiza la lista en un Modal independiente.
    * Necesario cuando el combo está dentro de un contenedor con bounds limitados (ej. TopBar).

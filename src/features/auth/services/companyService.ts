@@ -1,13 +1,17 @@
 import httpClient from '@/shared/services/httpClient';
-import useAuthStore from '../store/authStore';
+import useAuthStore from '@/features/auth/store/authStore';
 import { ENDPOINTS } from '@/shared/constants/endpoints';
+import { isSuccessResponse } from '@/shared/types/api';
+import { ApiBusinessError } from '@/shared/services/httpClient';
 import type {
   ApiParams,
   ApiRequest,
   ApiWrapper,
   EmpresasResponse,
-  SucursalesResponse
+  SucursalesResponse,
 } from '@/shared/types/api';
+
+// El bloque Dispositivo lo inyecta automáticamente el interceptor de httpClient.
 
 export const getEmpresas = async (): Promise<EmpresasResponse> => {
   const { ssid, ID_UsuarioAtica } = useAuthStore.getState();
@@ -16,7 +20,7 @@ export const getEmpresas = async (): Promise<EmpresasResponse> => {
     Params: {
       Accion:     'ObtenerEmpresas',
       SSID:       ssid!,
-      ID_Usuario: ID_UsuarioAtica
+      ID_Usuario: ID_UsuarioAtica!,
     },
   };
 
@@ -25,18 +29,24 @@ export const getEmpresas = async (): Promise<EmpresasResponse> => {
     body,
   );
 
-  return response.data.d;
-}
+  const result = response.data.d;
 
-export const getSucursales = async (ID_Empresa: number): Promise<SucursalesResponse> => {
+  if (!isSuccessResponse(result)) {
+    throw new ApiBusinessError((result as any).Message);
+  }
+
+  return result;
+};
+
+export const getSucursales = async (idEmpresa: number): Promise<SucursalesResponse> => {
   const { ssid, ID_UsuarioAtica } = useAuthStore.getState();
 
   const body: ApiRequest<ApiParams> = {
     Params: {
       Accion:     'ObtenerEmpresasSucursales',
       SSID:       ssid!,
-      ID_Usuario: ID_UsuarioAtica,
-      ID_Empresa,
+      ID_Usuario: ID_UsuarioAtica!,
+      ID_Empresa: idEmpresa,
     },
   };
 
@@ -45,5 +55,11 @@ export const getSucursales = async (ID_Empresa: number): Promise<SucursalesRespo
     body,
   );
 
-  return response.data.d;
+  const result = response.data.d;
+
+  if (!isSuccessResponse(result)) {
+    throw new ApiBusinessError((result as any).Message);
+  }
+
+  return result;
 };

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AppDrawer, { type DrawerRoute } from '@/shared/components/layout/AppDrawer';
@@ -6,20 +6,25 @@ import TopBar from '@/shared/components/layout/TopBar';
 import { DrawerProvider } from '@/shared/components/layout/DrawerContext';
 
 // Pantallas
-import HomeScreen                   from '@/features/home/screens/HomeScreen';
-import RecepcionDistribucionScreen  from '@/features/recepcion-distribucion/screens/RecepcionDistribucionScreen';
-import RecepcionDistribucionForm    from '@/features/recepcion-distribucion/screens/RecepcionDistribucionForm';
-import EntregaDirectaScreen         from '@/features/entrega-directa/screens/EntregaDirectaScreen';
-import EntregaDirectaForm           from '@/features/entrega-directa/screens/EntregaDirectaForm';
-import EntregaMercanciaScreen       from '@/features/entrega-mercancia/screens/EntregaMercanciaScreen';
-import EntregaMercanciaForm         from '@/features/entrega-mercancia/screens/EntregaMercanciaForm';
-import ConsignacionDirectaScreen    from '@/features/consignacion-directa/screens/ConsignacionDirectaScreen';
-import ConsignacionDirectaForm      from '@/features/consignacion-directa/screens/ConsignacionDirectaForm';
+import HomeScreen               from '@/features/home/screens/HomeScreen';
+import RecepcionDistribucionScreen from '@/features/recepcion-distribucion/screens/RecepcionDistribucionScreen';
+import RecepcionDistribucionForm   from '@/features/recepcion-distribucion/screens/RecepcionDistribucionForm';
+import EntregaDirectaScreen     from '@/features/entrega-directa/screens/EntregaDirectaScreen';
+import EntregaDirectaForm       from '@/features/entrega-directa/screens/EntregaDirectaForm';
+import EntregaMercanciaScreen   from '@/features/entrega-mercancia/screens/EntregaMercanciaScreen';
+import EntregaMercanciaForm     from '@/features/entrega-mercancia/screens/EntregaMercanciaForm';
+import ConsignacionDirectaScreen from '@/features/consignacion-directa/screens/ConsignacionDirectaScreen';
+import ConsignacionDirectaForm   from '@/features/consignacion-directa/screens/ConsignacionDirectaForm';
+
+import type { DistribucionItem } from '@/features/recepcion-distribucion/types';
 
 // ─── Param lists ──────────────────────────────────────────────────────────────
 
 type HomeStack            = { Home: undefined };
-type RecepDistStack       = { RecepcionDistribucion: undefined; RecepcionDistribucionForm: undefined };
+type RecepDistStack       = {
+  RecepcionDistribucion:     undefined;
+  RecepcionDistribucionForm: { item: DistribucionItem };
+};
 type EntregaDirStack      = { EntregaDirecta: undefined; EntregaDirectaForm: undefined };
 type EntregaMercStack     = { EntregaMercancia: undefined; EntregaMercanciaForm: undefined };
 type ConsignacionStack    = { ConsignacionDirecta: undefined; ConsignacionDirectaForm: undefined };

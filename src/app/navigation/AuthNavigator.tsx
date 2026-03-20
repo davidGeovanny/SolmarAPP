@@ -8,7 +8,7 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 const AuthNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
-    {/* <Stack.Screen name='Login' component={ LoginScreen } /> */}
+    <Stack.Screen name='Login' component={ LoginScreen } />
     <Stack.Screen name='CompanySelect' component={ CompanySelectScreen } />
   </Stack.Navigator>
 );
