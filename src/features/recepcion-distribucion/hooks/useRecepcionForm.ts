@@ -23,7 +23,7 @@ export const useRecepcionForm = (idOrdenDistribucion: number) => {
   const [isLoading,      setIsLoading]      = useState(false);
   const [filtroCampo,    setFiltroCampo]    = useState<FiltroCampoOption>(FILTRO_CAMPO_OPCIONES[0]);
   const [filtroTexto,    setFiltroTexto]    = useState('');
-  const [soloPendientes, setSoloPendientes] = useState(false);
+  const [soloPendientes, setSoloPendientes] = useState(true);
   const [currentPage,    setCurrentPage]    = useState(1);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);

@@ -11,7 +11,7 @@ import ComboBox from '@/shared/components/ui/ComboBox';
 import { MESES, FOLIO_OPCIONES } from '../types';
 import type { DistribucionFiltros, FolioTipoOption } from '../types';
 
-// import IcFiltro   from '@/assets/icons/ui/ic_filtro.png';
+import IcFiltro   from '@/assets/icons/ui/filtro.png';
 import IcExportar from '@/assets/icons/ui/download.svg';
 
 interface Props {

@@ -16,6 +16,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenHeader from '@/shared/components/layout/ScreenHeader';
 import ComboBox from '@/shared/components/ui/ComboBox';
 import ProductoFormRow from '../components/ProductoFormRow';
+import EditarCantidadModal, { type EditarCantidadItem } from '@/shared/components/ui/EditarCantidadModal';
 import { useRecepcionForm, FILTRO_CAMPO_OPCIONES } from '../hooks/useRecepcionForm';
 import { useSerieFolio } from '@/shared/hooks/useSerieFolio';
 import Paginador from '@/shared/components/ui/Paginador';
@@ -54,6 +55,7 @@ const RecepcionDistribucionForm = () => {
     hayProductosCapturados,
     cargarProductos,
     confirmarProducto,
+    updateProducto,
     handleFiltroCampoChange,
     handleFiltroTextoChange,
     setSoloPendientes,
@@ -74,6 +76,8 @@ const RecepcionDistribucionForm = () => {
   } = useSerieFolio('RDIST');
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [modalVisible,    setModalVisible]    = React.useState(false);
+  const [productoEditar,  setProductoEditar]  = React.useState<EditarCantidadItem | null>(null);
 
   useEffect(() => {
     cargarProductos();
@@ -88,8 +92,20 @@ const RecepcionDistribucionForm = () => {
     }, 300);
   };
 
-  const handleEditar = (_producto: ProductoDistribucion) => {
-    // TODO: abrir modal de edición
+  const handleEditar = (producto: ProductoDistribucion) => {
+    setProductoEditar(producto);
+    setModalVisible(true);
+  };
+
+  const handleModalCancel = () => {
+    setModalVisible(false);
+    setProductoEditar(null);
+  };
+
+  const handleModalApply = (idProducto: string, cantidad: string, observaciones: string) => {
+    updateProducto(idProducto, { CantidadRecibir: cantidad, Observaciones: observaciones });
+    setModalVisible(false);
+    setProductoEditar(null);
   };
 
   const handleConfirmarRecepcion = () => {
@@ -202,9 +218,9 @@ const RecepcionDistribucionForm = () => {
 
       {/* ── Encabezado del grid ───────────────────────────────────────── */}
       <View style={styles.tableHeader}>
-        <Text style={[styles.colHeader, { width: 76 }]}>Código</Text>
+        <Text style={[styles.colHeader, { width: 72 }]}>Código</Text>
         <Text style={[styles.colHeader, { flex: 1 }]}>Producto</Text>
-        <Text style={[styles.colHeader, { width: 38, textAlign: 'right' }]}>Dist.</Text>
+        <Text style={[styles.colHeader, { width: 50, textAlign: 'right' }]}>Dist.</Text>
         <Text style={[styles.colHeader, { width: 70, textAlign: 'center' }]}>Recibido</Text>
       </View>
 
@@ -244,6 +260,13 @@ const RecepcionDistribucionForm = () => {
       </View>
 
       {/* ── Botón flotante Confirmar ─────────────────────────────────── */}
+      <EditarCantidadModal
+        producto={productoEditar}
+        visible={modalVisible}
+        onCancel={handleModalCancel}
+        onApply={handleModalApply}
+      />
+
       {hayProductosCapturados && (
         <TouchableOpacity
           style={styles.btnConfirmarRecepcion}

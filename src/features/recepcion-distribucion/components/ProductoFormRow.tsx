@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import IcCheck from '@/assets/icons/ui/check.png';
+import IcEdit  from '@/assets/icons/ui/edit.png';
 import type { ProductoDistribucion } from '../types';
-
-// import IcCheck  from '@/assets/icons/ui/check.svg';
-// import IcEdit   from '@/assets/icons/ui/edit.svg';
 
 interface Props {
   producto: ProductoDistribucion;
@@ -13,6 +12,11 @@ interface Props {
 }
 
 // Determina el color de la cantidad recibida
+
+// Formatea a máximo 2 decimales eliminando ceros finales
+const fmt2 = (val: string): string =>
+  parseFloat(parseFloat(val).toFixed(2)).toString();
+
 const getCantidadColor = (recibir: string, surtir: string, maximo: string): string => {
   const r = parseFloat(recibir) || 0;
   const s = parseFloat(surtir)  || 0;
@@ -54,14 +58,14 @@ const ProductoFormRow: React.FC<Props> = ({
 
       {/* Dist. */}
       <Text style={[styles.cell, styles.colDist]} numberOfLines={1}>
-        {parseFloat(producto.CantidadASurtir).toFixed(0)}
+        {fmt2(producto.CantidadASurtir)}
       </Text>
 
       {/* Recibido / Cantidad capturada */}
       <View style={styles.colRecibido}>
         {tieneCantidad ? (
           <Text style={[styles.cell, styles.cantidadText, { color: cantidadColor }]}>
-            {parseFloat(producto.CantidadRecibir).toFixed(0)}
+            {fmt2(producto.CantidadRecibir)}
           </Text>
         ) : (
           // Botón confirmar (100%) — solo cuando no hay cantidad capturada
@@ -70,8 +74,7 @@ const ProductoFormRow: React.FC<Props> = ({
             onPress={() => onConfirmar(producto.ID_Producto)}
             activeOpacity={0.7}
           >
-            {/* <IcCheck width={16} height={16} color="#FFFFFF" /> */}
-            <Text style={styles.btnIcon}>✓</Text>
+            <Image source={IcCheck} style={{ width: 13, height: 13 }} resizeMode="contain" />
           </TouchableOpacity>
         )}
 
@@ -81,8 +84,7 @@ const ProductoFormRow: React.FC<Props> = ({
           onPress={() => onEditar(producto)}
           activeOpacity={0.7}
         >
-          {/* <IcEdit width={16} height={16} color="#FFFFFF" /> */}
-          <Text style={styles.btnIcon}>✎</Text>
+          <Image source={IcEdit} style={{ width: 13, height: 13 }} resizeMode="contain" />
         </TouchableOpacity>
       </View>
 
@@ -109,7 +111,7 @@ const styles = StyleSheet.create({
     color:    '#1E293B',
   },
   colCodigo: {
-    width: 76,
+    width: 72,
   },
   colProducto: {
     flex:     1,
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
     color:    '#1E293B',
   },
   colDist: {
-    width:     38,
+    width:     50,
     textAlign: 'right',
     color:     '#64748B',
   },
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
   cantidadText: {
     fontSize:   13,
     fontWeight: '700',
-    width:      32,
+    width:      70,
     textAlign:  'center',
   },
   btnConfirmar: {
@@ -152,11 +154,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#94A3B8',
     alignItems:      'center',
     justifyContent:  'center',
-  },
-  btnIcon: {
-    color:      '#FFFFFF',
-    fontSize:   14,
-    fontWeight: '700',
   },
 });
 
