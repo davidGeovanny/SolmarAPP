@@ -7,8 +7,9 @@ import { DrawerProvider } from '@/shared/components/layout/DrawerContext';
 
 // Pantallas
 import HomeScreen               from '@/features/home/screens/HomeScreen';
-import RecepcionDistribucionScreen from '@/features/recepcion-distribucion/screens/RecepcionDistribucionScreen';
-import RecepcionDistribucionForm   from '@/features/recepcion-distribucion/screens/RecepcionDistribucionForm';
+import RecepcionDistribucionScreen  from '@/features/recepcion-distribucion/screens/RecepcionDistribucionScreen';
+import RecepcionDistribucionDetalle from '@/features/recepcion-distribucion/screens/RecepcionDistribucionDetalle';
+import RecepcionDistribucionForm    from '@/features/recepcion-distribucion/screens/RecepcionDistribucionForm';
 import EntregaDirectaScreen     from '@/features/entrega-directa/screens/EntregaDirectaScreen';
 import EntregaDirectaForm       from '@/features/entrega-directa/screens/EntregaDirectaForm';
 import EntregaMercanciaScreen   from '@/features/entrega-mercancia/screens/EntregaMercanciaScreen';
@@ -22,8 +23,9 @@ import type { DistribucionItem } from '@/features/recepcion-distribucion/types';
 
 type HomeStack            = { Home: undefined };
 type RecepDistStack       = {
-  RecepcionDistribucion:     undefined;
-  RecepcionDistribucionForm: { item: DistribucionItem };
+  RecepcionDistribucion:        undefined;
+  RecepcionDistribucionDetalle: { item: DistribucionItem };
+  RecepcionDistribucionForm:    undefined;
 };
 type EntregaDirStack      = { EntregaDirecta: undefined; EntregaDirectaForm: undefined };
 type EntregaMercStack     = { EntregaMercancia: undefined; EntregaMercanciaForm: undefined };
@@ -55,8 +57,9 @@ const HomeSt = () => (
 
 const RecepDistSt = () => (
   <RecepDistStack.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
-    <RecepDistStack.Screen name="RecepcionDistribucion"     component={RecepcionDistribucionScreen} />
-    <RecepDistStack.Screen name="RecepcionDistribucionForm" component={RecepcionDistribucionForm} options={FORM_OPTIONS} />
+    <RecepDistStack.Screen name="RecepcionDistribucion"        component={RecepcionDistribucionScreen} />
+    <RecepDistStack.Screen name="RecepcionDistribucionDetalle" component={RecepcionDistribucionDetalle} options={FORM_OPTIONS} />
+    <RecepDistStack.Screen name="RecepcionDistribucionForm"    component={RecepcionDistribucionForm}    options={FORM_OPTIONS} />
   </RecepDistStack.Navigator>
 );
 

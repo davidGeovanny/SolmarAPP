@@ -15,8 +15,9 @@ import { useRecepcionDistribucion } from '../hooks/useRecepcionDistribucion';
 import type { DistribucionItem } from '../types';
 
 type StackParams = {
-  RecepcionDistribucion:     undefined;
-  RecepcionDistribucionForm: { item: DistribucionItem };
+  RecepcionDistribucion:        undefined;
+  RecepcionDistribucionDetalle: { item: DistribucionItem };
+  RecepcionDistribucionForm:    undefined;
 };
 
 const RecepcionDistribucionScreen = () => {
@@ -44,7 +45,11 @@ const RecepcionDistribucionScreen = () => {
 
   const handleItemPress = (item: DistribucionItem) => {
     if (isLoading) return;
-    navigation.navigate('RecepcionDistribucionForm', { item });
+    if (filtros.estatus === 'Recibidas') {
+      navigation.navigate('RecepcionDistribucionDetalle', { item });
+    } else {
+      navigation.navigate('RecepcionDistribucionForm');
+    }
   };
 
   const handlePdf = (_item: DistribucionItem) => {
@@ -73,24 +78,24 @@ const RecepcionDistribucionScreen = () => {
         />
       </View>
 
-      {/* Lista con RefreshControl nativo */}
+      {/* Lista con RefreshControl nativo — siempre presente para pull-to-refresh */}
       <View style={styles.listContainer}>
         <FlashList
           data={items}
+          keyExtractor={item => item.ID_OrdenDistribucion}
           ListHeaderComponent={() => (
             <>
-            {/* Encabezado de columnas */}
-            <View style={styles.tableHeader}>
-              <Text style={[styles.headerCell, { flex: 1.6 }]}>
-                {esRecibidas ? 'Folios' : 'F. Distribución'}
-              </Text>
-              <Text style={[styles.headerCell, { flex: 0.7 }]}>Fecha</Text>
-              {esRecibidas && <View style={{ width: 26 }} />}
-              <View style={{ width: 20 }} />
-            </View>
+              {/* Encabezado de columnas */}
+              <View style={styles.tableHeader}>
+                <Text style={[styles.headerCell, { flex: 1.6 }]}>
+                  {esRecibidas ? 'Folios' : 'F. Distribución'}
+                </Text>
+                <Text style={[styles.headerCell, { flex: 0.7 }]}>Fecha</Text>
+                {esRecibidas && <View style={{ width: 26 }} />}
+                <View style={{ width: 20 }} />
+              </View>
             </>
           )}
-          keyExtractor={item => item.ID_OrdenDistribucion}
           renderItem={({ item, index }) => (
             <DistribucionListItem
               item={item}
@@ -164,13 +169,6 @@ const styles = StyleSheet.create({
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(248,250,252,0.5)',
-  },
-  pullLayer: {
-    position: 'absolute',
-    top:      0,
-    left:     0,
-    right:    0,
-    // Sin backgroundColor — completamente invisible
   },
 });
 

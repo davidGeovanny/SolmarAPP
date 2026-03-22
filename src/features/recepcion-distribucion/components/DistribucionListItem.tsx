@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { DistribucionItem, DistribucionEstatus } from '../types';
 
-// import IcChevron  from '@/assets/icons/ui/ic_chevron_right.png';
 import IcDownload from '@/assets/icons/ui/download.svg';
 
 interface Props {

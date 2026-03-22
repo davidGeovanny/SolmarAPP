@@ -12,7 +12,7 @@ import { MESES, FOLIO_OPCIONES } from '../types';
 import type { DistribucionFiltros, FolioTipoOption } from '../types';
 
 // import IcFiltro   from '@/assets/icons/ui/ic_filtro.png';
-// import IcExportar from '@/assets/icons/ui/ic_exportar.png';
+import IcExportar from '@/assets/icons/ui/download.svg';
 
 interface Props {
   filtros:            DistribucionFiltros;
@@ -112,8 +112,7 @@ const DistribucionFiltrosBar: React.FC<Props> = ({
           onPress={onExportar}
           activeOpacity={0.7}
         >
-          {/* <Image source={IcExportar} style={styles.iconImg} /> */}
-          <Text style={styles.iconText}>↓</Text>
+          <IcExportar width={22} height={22} color="#1C57B5" />
         </TouchableOpacity>
 
       </View>

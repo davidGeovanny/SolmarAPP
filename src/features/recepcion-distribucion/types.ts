@@ -53,3 +53,29 @@ export interface DistribucionListResponse {
   Data:    DistribucionItem[];
   Success: true;
 }
+
+// ─── Tipos para el detalle de recepción ──────────────────────────────────────
+
+export interface RecepcionProducto {
+  ID_RecepcionDistribucion: string;
+  ID_Producto:              string;
+  CodigoProducto:           string;
+  NombreProducto:           string;
+  CantidadRecibida:         string;
+}
+
+export interface RecepcionDetalle {
+  ID_RecepcionDistribucion: string;
+  Folio:                    string;
+  PersonaRecibe:            string;
+  Fecha:                    string;
+  SerieFolioMovimiento:     string;
+  FolioOrdenDistribucion:   string;
+  Productos:                RecepcionProducto[];
+}
+
+export interface RecepcionDetalleResponse {
+  Count:   number;
+  Data:    RecepcionDetalle[];
+  Success: true;
+}
