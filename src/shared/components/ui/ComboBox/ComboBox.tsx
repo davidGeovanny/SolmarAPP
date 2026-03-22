@@ -4,10 +4,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
   Dimensions,
-  Modal,
-  StyleSheet,
 } from 'react-native';
 import { comboBoxStyles as styles } from './ComboBox.styles';
 import ComboBoxList from './ComboBoxList';
@@ -44,10 +41,6 @@ function ComboBox<T>({
   const [isOpen,       setIsOpen]       = useState(false);
   const [inputText,    setInputText]    = useState('');
   const [filteredData, setFilteredData] = useState<T[]>(data);
-  const [listLayout,   setListLayout]   = useState<{
-    top: number; left: number; width: number;
-  } | null>(null);
-
   const [inputHeight,  setInputHeight]  = useState(52); // altura real del inputContainer
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -58,9 +51,14 @@ function ComboBox<T>({
   // ID estable por instancia — identifica este combo en el contexto
   const comboId = useRef(`combo-${Math.random().toString(36).slice(2)}`).current;
 
-  const { activeComboId, requestOpen, notifyClose } = useComboOpen();
+  // Ref de reenvío para handleSelect — permite que openList use siempre la versión
+  // más reciente del callback sin agregarlo a sus deps (evita closures obsoletos).
+  const handleSelectRef = useRef<(item: T) => void>(() => {});
 
-  // ── Medir posición del wrapper para posicionar el modal ───────────────
+  const { activeComboId, requestOpen, notifyClose,
+          openDropdown, closeDropdown, updatePortalItems } = useComboOpen();
+
+  // ── Medir posición del inputContainer — para la lista normal (no modal) ──
   const measureInput = useCallback((): Promise<{
     top: number; left: number; width: number; height: number;
   }> => new Promise(resolve => {
@@ -69,35 +67,61 @@ function ComboBox<T>({
     });
   }), []);
 
+  // ── Medir posición del wrapper — para el portal (modal) ───────────────
+  // El wrapper siempre tiene la altura real visible sin importar la variante
+  const measureWrapper = useCallback((): Promise<{
+    top: number; left: number; width: number; height: number;
+  }> => new Promise(resolve => {
+    wrapperRef.current?.measureInWindow((x, y, width, height) => {
+      resolve({ left: x, top: y, width, height });
+    });
+  }), []);
+
   // ── Abrir / cerrar lista ──────────────────────────────────────────────
   const openList = useCallback(async () => {
     if (useModal) {
-      const { left, top, width, height } = await measureInput();
+      const { left, top, width } = await measureWrapper();
       const SCREEN_W = Dimensions.get('window').width;
       const listWidth = Math.max(width, 200);
-      // Ajustar si se sale por la derecha
       const adjustedLeft = left + listWidth > SCREEN_W
         ? SCREEN_W - listWidth - 8
-        : left;
-      setListLayout({
-        top:   top + height + (variant === 'transparent' ? 36 : (height / 2)) + 4,
-        left:  adjustedLeft,
-        width: listWidth,
+        : left - 4;
+
+      // Height estático por variante — las mediciones dinámicas fallan
+      // por overflow/collapsing del inputContainer según la variante
+      const inputH = variant === 'transparent' ? 35 : 52; // outline y glass tienen la misma altura real de 52
+
+      const portalTop = top + inputH + 20;
+      openDropdown({
+        top:             portalTop,
+        left:            adjustedLeft,
+        width:           listWidth,
+        estimatedHeight: Math.min(filteredData.length * 44 + 16, 250),
+        items:           filteredData as unknown[],
+        selectedValue:   value ? value[fieldConfig.valueKey] : null,
+        fieldConfig,
+        excludeSelected,
+        onSelect:        (item: unknown) => handleSelectRef.current(item as T),
+        comboId,
       });
-    }
-    if (!useModal) {
-      // Medir el input para calcular el top dinámico de la lista
+    } else {
+      // Medir el inputContainer para calcular el top dinámico de la lista normal
       const { height } = await measureInput();
       setInputHeight(height);
+      requestOpen(comboId);
     }
-    requestOpen(comboId);
     setIsOpen(true);
-  }, [useModal, measureInput, requestOpen, comboId, variant]);
+  }, [useModal, measureWrapper, measureInput, openDropdown, filteredData, value, fieldConfig,
+      excludeSelected, comboId, requestOpen, variant]);
 
   const closeList = useCallback(() => {
-    notifyClose(comboId);
+    if (useModal) {
+      closeDropdown(); // también limpia activeComboId
+    } else {
+      notifyClose(comboId);
+    }
     setIsOpen(false);
-  }, [notifyClose, comboId]);
+  }, [useModal, closeDropdown, notifyClose, comboId]);
 
   // Cerrarse si otro combo se abrió
   useEffect(() => {
@@ -127,6 +151,17 @@ function ComboBox<T>({
   useEffect(() => {
     setFilteredData(data);
   }, [data]);
+
+  // ── Sincronizar items del portal cuando filteredData cambia (modo search) ──
+  useEffect(() => {
+    if (useModal && isOpen) {
+      updatePortalItems(
+        filteredData as unknown[],
+        value ? value[fieldConfig.valueKey] : null,
+      );
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredData, useModal, isOpen]);
 
   // ── Filtrado con debounce ─────────────────────────────────────────────
   const filterData = useCallback((text: string) => {
@@ -159,6 +194,9 @@ function ComboBox<T>({
     setFilteredData(data);
     closeList();
   }, [onChange, getDisplayText, data, closeList]);
+
+  // Mantener el ref siempre apuntando a la versión más reciente
+  handleSelectRef.current = handleSelect;
 
   // ── Limpiar selección ─────────────────────────────────────────────────
   const handleClear = useCallback(() => {
@@ -238,47 +276,6 @@ function ComboBox<T>({
 
   const selectedValue = value ? value[fieldConfig.valueKey] : null;
 
-  // ── Lista en Modal ────────────────────────────────────────────────────
-  const renderModalList = () => {
-    if (!isOpen || !listLayout) return null;
-    return (
-      <Modal
-        visible
-        transparent
-        animationType="none"
-        onRequestClose={closeList}
-        statusBarTranslucent
-      >
-        {/* Backdrop — toque fuera cierra */}
-        <TouchableOpacity
-          style={StyleSheet.absoluteFill}
-          onPress={closeList}
-          activeOpacity={1}
-        />
-        {/* Lista — fuera del TouchableOpacity para recibir gestos sin interferencia */}
-        <View
-          style={{
-            position:  'absolute',
-            top:       listLayout.top,
-            left:      listLayout.left,
-            width:     listLayout.width,
-            elevation: 20,
-          }}
-        >
-          <ComboBoxList
-            items={filteredData}
-            selectedValue={selectedValue}
-            fieldConfig={fieldConfig}
-            direction="bottom"
-            excludeSelected={excludeSelected}
-            onSelect={handleSelect}
-            inModal
-          />
-        </View>
-      </Modal>
-    );
-  };
-
   return (
     <View ref={wrapperRef} style={styles.wrapper} collapsable={!useModal}>
       {/* Input */}
@@ -331,8 +328,6 @@ function ComboBox<T>({
         />
       )}
 
-      {/* Lista en modal (combos del TopBar) */}
-      {useModal && renderModalList()}
     </View>
   );
 }

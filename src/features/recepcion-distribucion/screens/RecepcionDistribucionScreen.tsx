@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
@@ -34,7 +33,9 @@ const RecepcionDistribucionScreen = () => {
     aplicarFiltros,
   } = useRecepcionDistribucion();
 
-  const esRecibidas = filtros.estatus === 'Recibidas';
+  const esRecibidas  = filtros.estatus === 'Recibidas';
+  const isLoadingRef = useRef(isLoading);
+  useEffect(() => { isLoadingRef.current = isLoading; }, [isLoading]);
 
   useEffect(() => {
     aplicarFiltros();
@@ -58,7 +59,7 @@ const RecepcionDistribucionScreen = () => {
     <View style={styles.root}>
 
       {/* Zona de filtros — zIndex alto para que el listado del combo flote sobre el grid */}
-      <View style={styles.topZone}>
+      <View>
         <ScreenHeader title="Recepción de Distribución" />
         <DistribucionFiltrosBar
           filtros={filtros}
@@ -72,48 +73,51 @@ const RecepcionDistribucionScreen = () => {
         />
       </View>
 
-      {/* Encabezado de columnas */}
-      <View style={styles.tableHeader}>
-        <Text style={[styles.headerCell, { flex: 1.6 }]}>
-          {esRecibidas ? 'Folios' : 'F. Distribución'}
-        </Text>
-        <Text style={[styles.headerCell, { flex: 1 }]}>Fecha</Text>
-        {esRecibidas && <View style={{ width: 26 }} />}
-        <View style={{ width: 20 }} />
-      </View>
-
       {/* Lista con RefreshControl nativo */}
       <View style={styles.listContainer}>
-        {items.length === 0 && !isLoading ? (
-          <View style={styles.centered}>
-            <Text style={styles.emptyText}>Sin resultados</Text>
-          </View>
-        ) : (
-          <FlashList
-            data={items}
-            keyExtractor={item => item.ID_OrdenDistribucion}
-            renderItem={({ item, index }) => (
-              <DistribucionListItem
-                item={item}
-                index={index}
-                estatus={filtros.estatus}
-                onPress={handleItemPress}
-                onPdf={handlePdf}
-              />
-            )}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={isLoading}
-                onRefresh={aplicarFiltros}
-                colors={['#1C57B5']}
-                tintColor="#1C57B5"
-              />
-            }
-          />
-        )}
+        <FlashList
+          data={items}
+          ListHeaderComponent={() => (
+            <>
+            {/* Encabezado de columnas */}
+            <View style={styles.tableHeader}>
+              <Text style={[styles.headerCell, { flex: 1.6 }]}>
+                {esRecibidas ? 'Folios' : 'F. Distribución'}
+              </Text>
+              <Text style={[styles.headerCell, { flex: 0.7 }]}>Fecha</Text>
+              {esRecibidas && <View style={{ width: 26 }} />}
+              <View style={{ width: 20 }} />
+            </View>
+            </>
+          )}
+          keyExtractor={item => item.ID_OrdenDistribucion}
+          renderItem={({ item, index }) => (
+            <DistribucionListItem
+              item={item}
+              index={index}
+              estatus={filtros.estatus}
+              onPress={handleItemPress}
+              onPdf={handlePdf}
+            />
+          )}
+          ListEmptyComponent={
+            !isLoading ? (
+              <View style={styles.centered}>
+                <Text style={styles.emptyText}>Sin resultados</Text>
+              </View>
+            ) : null
+          }
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={aplicarFiltros}
+              colors={['#1C57B5']}
+              tintColor="#1C57B5"
+            />
+          }
+        />
 
-        {/* Overlay semitransparente — bloquea toques durante la carga */}
         {isLoading && (
           <View style={styles.loadingOverlay} pointerEvents="box-only" />
         )}
@@ -127,10 +131,6 @@ const styles = StyleSheet.create({
   root: {
     flex:            1,
     backgroundColor: '#F8FAFC',
-  },
-  topZone: {
-    // zIndex:    10,
-    // elevation: 10,
   },
   tableHeader: {
     flexDirection:     'row',
@@ -164,6 +164,13 @@ const styles = StyleSheet.create({
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(248,250,252,0.5)',
+  },
+  pullLayer: {
+    position: 'absolute',
+    top:      0,
+    left:     0,
+    right:    0,
+    // Sin backgroundColor — completamente invisible
   },
 });
 
