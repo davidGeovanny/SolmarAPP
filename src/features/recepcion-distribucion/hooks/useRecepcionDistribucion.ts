@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { getDistribuciones } from '../services/distribucionService';
 import { ApiBusinessError, NetworkError } from '@/shared/services/httpClient';
 import toast from '@/shared/utils/toast';
@@ -9,6 +9,8 @@ import type {
   FolioTipoOption,
 } from '../types';
 import { MESES, FOLIO_OPCIONES } from '../types';
+
+const PAGE_SIZE = 20;
 
 const currentDate = new Date();
 
@@ -21,12 +23,11 @@ const defaultFiltros = (): DistribucionFiltros => ({
 });
 
 export const useRecepcionDistribucion = () => {
-  // Todos los registros que vienen del servidor
-  const [allItems,  setAllItems]  = useState<DistribucionItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [filtros,   setFiltros]   = useState<DistribucionFiltros>(defaultFiltros);
+  const [allItems,     setAllItems]     = useState<DistribucionItem[]>([]);
+  const [isLoading,    setIsLoading]    = useState(false);
+  const [filtros,      setFiltros]      = useState<DistribucionFiltros>(defaultFiltros);
+  const [currentPage,  setCurrentPage]  = useState(1);
 
-  // Ref para debounce del switch
   const switchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Buscar al servidor ─────────────────────────────────────────────────
@@ -37,51 +38,65 @@ export const useRecepcionDistribucion = () => {
     }
     try {
       setIsLoading(true);
-      console.log({ filtrosActuales });
       const res = await getDistribuciones(filtrosActuales);
       setAllItems(res.Data ?? []);
+      setCurrentPage(1); // siempre volver a página 1 al cargar nuevos resultados
     } catch (err) {
-      console.log({err});
       if (err instanceof ApiBusinessError) {
         toast.error({ title: 'Error', message: err.message });
       } else if (err instanceof NetworkError) {
         toast.error({ title: 'Sin conexión', message: 'Verifica tu conexión e intenta de nuevo' });
       }
       setAllItems([]);
+      setCurrentPage(1);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   // ── Filtrado local por folio ───────────────────────────────────────────
-  // Filtra allItems según folioTipo y folioValor sin llamar al servidor
-  const items = (() => {
+  const filteredItems = useMemo(() => {
     const valor = filtros.folioValor.trim().toLowerCase();
     if (!valor || !filtros.folioTipo) return allItems;
-
     return allItems.filter(item => {
       const campo = filtros.folioTipo!.id === 'Folio'
         ? item.Folio
         : item.FolioRecepcion;
       return campo.toLowerCase().includes(valor);
     });
-  })();
+  }, [allItems, filtros.folioValor, filtros.folioTipo]);
+
+  // ── Paginado local ────────────────────────────────────────────────────
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
+
+  const items = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredItems.slice(start, start + PAGE_SIZE);
+  }, [filteredItems, currentPage]);
+
+  const goToPage = useCallback((page: number) => {
+    const clamped = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(clamped);
+  }, [totalPages]);
+
+  const nextPage = useCallback(() => {
+    setCurrentPage(p => Math.min(p + 1, totalPages));
+  }, [totalPages]);
+
+  const prevPage = useCallback(() => {
+    setCurrentPage(p => Math.max(p - 1, 1));
+  }, []);
 
   // ── Cambio de estatus — con debounce ──────────────────────────────────
   const handleEstatusChange = useCallback((estatus: DistribucionEstatus) => {
     const nuevos: DistribucionFiltros = {
       ...filtros,
       estatus,
-      // Al volver a Pendientes, forzar folioTipo a FolioDistribucion
       folioTipo: estatus === 'Pendientes' ? FOLIO_OPCIONES[0] : filtros.folioTipo,
     };
     setFiltros(nuevos);
-
-    // Debounce de 400ms para evitar llamadas rápidas consecutivas
     if (switchDebounceRef.current) clearTimeout(switchDebounceRef.current);
-    switchDebounceRef.current = setTimeout(() => {
-      buscar(nuevos);
-    }, 400);
+    switchDebounceRef.current = setTimeout(() => { buscar(nuevos); }, 400);
   }, [filtros, buscar]);
 
   // ── Cambios de filtros locales ─────────────────────────────────────────
@@ -107,9 +122,17 @@ export const useRecepcionDistribucion = () => {
   }, [filtros, buscar]);
 
   return {
-    items,           // registros ya filtrados localmente
+    items,
     isLoading,
     filtros,
+    // Paginado
+    currentPage,
+    totalPages,
+    totalItems: filteredItems.length,
+    goToPage,
+    nextPage,
+    prevPage,
+    // Handlers filtros
     handleEstatusChange,
     handleAnioChange,
     handleMesChange,

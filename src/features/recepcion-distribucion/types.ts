@@ -79,3 +79,44 @@ export interface RecepcionDetalleResponse {
   Data:    RecepcionDetalle[];
   Success: true;
 }
+
+// ─── Tipos del formulario de recepción ───────────────────────────────────────
+
+export interface ProductoDistribucion {
+  ID_Producto:          string;
+  ID_OrdenDistribucion: string;
+  CodigoProducto:       string;
+  NombreProducto:       string;
+  CantidadASurtir:      string;
+  MaximoASurtir:        string;
+  // Campos locales — se llenan al capturar la recepción
+  CantidadRecibir:      string;
+  Observaciones:        string;
+}
+
+export interface ProductosDistribucionResponse {
+  Count:   number;
+  Data:    Omit<ProductoDistribucion, 'CantidadRecibir' | 'Observaciones'>[];
+  Success: true;
+}
+
+// ─── Tipos de series ──────────────────────────────────────────────────────────
+
+export interface SerieItem {
+  ID_ConfiguracionSerie: number;
+  Serie:                 string;
+}
+
+export interface SeriesResponse {
+  Count:   number;
+  Data:    { ID_ConfiguracionSerie: string; Serie: string }[];
+  Success: true;
+}
+
+export interface FolioResponse {
+  Count:   number;
+  Data:    { Folio: string }[];
+  Success: true;
+}
+
+export const SERIE_SIN_SERIE: SerieItem = { ID_ConfiguracionSerie: 0, Serie: 'Sin Serie' };

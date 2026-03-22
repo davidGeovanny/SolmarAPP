@@ -25,7 +25,7 @@ type HomeStack            = { Home: undefined };
 type RecepDistStack       = {
   RecepcionDistribucion:        undefined;
   RecepcionDistribucionDetalle: { item: DistribucionItem };
-  RecepcionDistribucionForm:    undefined;
+  RecepcionDistribucionForm:    { item: DistribucionItem };
 };
 type EntregaDirStack      = { EntregaDirecta: undefined; EntregaDirectaForm: undefined };
 type EntregaMercStack     = { EntregaMercancia: undefined; EntregaMercanciaForm: undefined };

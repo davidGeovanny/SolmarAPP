@@ -34,33 +34,6 @@ export const getDistribuciones = async (
 
   const result = response.data.d;
 
-  // const response: ApiWrapper<DistribucionListResponse> = {
-  //     "d": {
-  //         "Count": 0,
-  //         "Data": [
-  //             {
-  //                 "ID_OrdenDistribucion": "34754",
-  //                 "ID_RecepcionDistribucion": "0",
-  //                 "Fecha": "18/03/2026 06:00 AM",
-  //                 "Folio": "DIST-CED-32106",
-  //                 "FolioRecepcion": "0",
-  //                 "Status": "1"
-  //             },
-  //             {
-  //                 "ID_OrdenDistribucion": "34753",
-  //                 "ID_RecepcionDistribucion": "0",
-  //                 "Fecha": "18/03/2026 06:00 AM",
-  //                 "Folio": "DIST-CED-32105",
-  //                 "FolioRecepcion": "0",
-  //                 "Status": "1"
-  //             }
-  //         ],
-  //         "Success": true
-  //     }
-  // };
-
-  // const result = response.d;
-
   if (!isSuccessResponse(result)) {
     throw new ApiBusinessError((result as any).Message);
   }

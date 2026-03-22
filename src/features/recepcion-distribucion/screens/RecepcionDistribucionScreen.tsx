@@ -12,12 +12,13 @@ import ScreenHeader from '@/shared/components/layout/ScreenHeader';
 import DistribucionFiltrosBar from '../components/DistribucionFiltros';
 import DistribucionListItem from '../components/DistribucionListItem';
 import { useRecepcionDistribucion } from '../hooks/useRecepcionDistribucion';
+import Paginador from '@/shared/components/ui/Paginador';
 import type { DistribucionItem } from '../types';
 
 type StackParams = {
   RecepcionDistribucion:        undefined;
   RecepcionDistribucionDetalle: { item: DistribucionItem };
-  RecepcionDistribucionForm:    undefined;
+  RecepcionDistribucionForm:    { item: DistribucionItem };
 };
 
 const RecepcionDistribucionScreen = () => {
@@ -32,6 +33,11 @@ const RecepcionDistribucionScreen = () => {
     handleFolioTipoChange,
     handleFolioValorChange,
     aplicarFiltros,
+    currentPage,
+    totalPages,
+    goToPage,
+    nextPage,
+    prevPage,
   } = useRecepcionDistribucion();
 
   const esRecibidas  = filtros.estatus === 'Recibidas';
@@ -48,7 +54,7 @@ const RecepcionDistribucionScreen = () => {
     if (filtros.estatus === 'Recibidas') {
       navigation.navigate('RecepcionDistribucionDetalle', { item });
     } else {
-      navigation.navigate('RecepcionDistribucionForm');
+      navigation.navigate('RecepcionDistribucionForm', { item });
     }
   };
 
@@ -82,20 +88,7 @@ const RecepcionDistribucionScreen = () => {
       <View style={styles.listContainer}>
         <FlashList
           data={items}
-          keyExtractor={item => item.ID_OrdenDistribucion}
-          ListHeaderComponent={() => (
-            <>
-              {/* Encabezado de columnas */}
-              <View style={styles.tableHeader}>
-                <Text style={[styles.headerCell, { flex: 1.6 }]}>
-                  {esRecibidas ? 'Folios' : 'F. Distribución'}
-                </Text>
-                <Text style={[styles.headerCell, { flex: 0.7 }]}>Fecha</Text>
-                {esRecibidas && <View style={{ width: 26 }} />}
-                <View style={{ width: 20 }} />
-              </View>
-            </>
-          )}
+          keyExtractor={item => esRecibidas ? item.ID_RecepcionDistribucion : item.ID_OrdenDistribucion}
           renderItem={({ item, index }) => (
             <DistribucionListItem
               item={item}
@@ -104,6 +97,16 @@ const RecepcionDistribucionScreen = () => {
               onPress={handleItemPress}
               onPdf={handlePdf}
             />
+          )}
+          ListHeaderComponent={() => (
+            <View style={styles.tableHeader}>
+              <Text style={[styles.headerCell, { flex: 1.6 }]}>
+                {esRecibidas ? 'Folios' : 'F. Distribución'}
+              </Text>
+              <Text style={[styles.headerCell, { flex: 0.7 }]}>Fecha</Text>
+              {esRecibidas && <View style={{ width: 26 }} />}
+              <View style={{ width: 20 }} />
+            </View>
           )}
           ListEmptyComponent={
             !isLoading ? (
@@ -126,6 +129,14 @@ const RecepcionDistribucionScreen = () => {
         {isLoading && (
           <View style={styles.loadingOverlay} pointerEvents="box-only" />
         )}
+
+        <Paginador
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPrev={prevPage}
+          onNext={nextPage}
+          onGoToPage={goToPage}
+        />
       </View>
 
     </View>
