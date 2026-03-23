@@ -10,7 +10,8 @@ import { FlashList } from '@shopify/flash-list';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenHeader from '@/shared/components/layout/ScreenHeader';
-import DistribucionFiltrosBar from '../components/DistribucionFiltros';
+import ListadoFiltros from '@/shared/components/ui/ListadoFiltros';
+import { FOLIO_OPCIONES } from '../types';
 import DistribucionListItem from '../components/DistribucionListItem';
 import { useRecepcionDistribucion } from '../hooks/useRecepcionDistribucion';
 import { usePdfReporte, } from '@/shared/hooks/usePdfReporte';
@@ -94,8 +95,15 @@ const RecepcionDistribucionScreen = () => {
       {/* Zona de filtros — zIndex alto para que el listado del combo flote sobre el grid */}
       <View>
         <ScreenHeader title="Recepción de Distribución" />
-        <DistribucionFiltrosBar
-          filtros={filtros}
+        <ListadoFiltros
+          anio={filtros.anio}
+          mes={filtros.mes}
+          estatus={filtros.estatus}
+          folioTipo={filtros.folioTipo}
+          folioValor={filtros.folioValor}
+          folioOpciones={FOLIO_OPCIONES}
+          switchConfig={{ labelIzquierda: 'Pendientes', labelDerecha: 'Recibidas' }}
+          tipoReporte={TIPO_REPORTE.LISTADO_ORDENES_DISTRIBUCION}
           onEstatusChange={handleEstatusChange}
           onAnioChange={handleAnioChange}
           onMesChange={handleMesChange}

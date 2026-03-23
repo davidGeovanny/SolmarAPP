@@ -2,15 +2,14 @@
 
 export type DistribucionEstatus = 'Pendientes' | 'Recibidas';
 
-export type FolioTipo = 'Folio' | 'FolioRecepcion';
-
+// FolioTipoOption usa id: string para ser compatible con FolioOpcion de ListadoFiltros
 export interface FolioTipoOption {
-  id:     FolioTipo;
+  id:     string;
   nombre: string;
 }
 
 export const FOLIO_OPCIONES: FolioTipoOption[] = [
-  { id: 'Folio',         nombre: 'F. Distribución' },
+  { id: 'Folio',          nombre: 'F. Distribución' },
   { id: 'FolioRecepcion', nombre: 'F. Recepción' },
 ];
 
