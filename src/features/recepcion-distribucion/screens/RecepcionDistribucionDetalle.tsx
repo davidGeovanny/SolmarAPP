@@ -12,6 +12,8 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenHeader from '@/shared/components/layout/ScreenHeader';
 import { useRecepcionDetalle } from '../hooks/useRecepcionDetalle';
+import { usePdfReporte } from '@/shared/hooks/usePdfReporte';
+import { TIPO_REPORTE } from '@/shared/services/reporteService';
 import type { DistribucionItem, RecepcionProducto } from '../types';
 
 import IcDownload from '@/assets/icons/ui/download.svg';
@@ -27,6 +29,7 @@ const RecepcionDistribucionDetalle = () => {
   const route      = useRoute<RouteProp<StackParams, 'RecepcionDistribucionDetalle'>>();
   const { item }   = route.params;
 
+  const { descargarPdf } = usePdfReporte();
   const { detalle, isLoading, cargar } = useRecepcionDetalle(
     Number(item.ID_OrdenDistribucion),
   );
@@ -37,7 +40,17 @@ const RecepcionDistribucionDetalle = () => {
   }, []);
 
   const handleDescargarPdf = () => {
-    // TODO: descargar PDF de recepción
+    if (!detalle) return;
+    descargarPdf(
+      {
+        TipoReporte:               TIPO_REPORTE.ORDEN_DISTRIBUCION,
+        ID_RecepcionDistribucion:  Number(detalle.ID_RecepcionDistribucion),
+        ID_RecepcionEntregaDirecta: 0,
+        ID_EntregaCentroCosto:      0,
+        ID_ConsignacionDirecta:     0,
+      },
+      `recepcion_${detalle.Folio}`,
+    );
   };
 
   return (

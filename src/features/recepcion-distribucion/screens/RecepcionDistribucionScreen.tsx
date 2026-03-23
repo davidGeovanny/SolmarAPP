@@ -3,6 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
+  ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
@@ -12,6 +13,8 @@ import ScreenHeader from '@/shared/components/layout/ScreenHeader';
 import DistribucionFiltrosBar from '../components/DistribucionFiltros';
 import DistribucionListItem from '../components/DistribucionListItem';
 import { useRecepcionDistribucion } from '../hooks/useRecepcionDistribucion';
+import { usePdfReporte, } from '@/shared/hooks/usePdfReporte';
+import { TIPO_REPORTE } from '@/shared/services/reporteService';
 import Paginador from '@/shared/components/ui/Paginador';
 import type { DistribucionItem } from '../types';
 
@@ -44,6 +47,8 @@ const RecepcionDistribucionScreen = () => {
   const isLoadingRef = useRef(isLoading);
   useEffect(() => { isLoadingRef.current = isLoading; }, [isLoading]);
 
+  const { descargarPdf, isLoading: loadingPdf } = usePdfReporte();
+
   useEffect(() => {
     aplicarFiltros();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,12 +63,29 @@ const RecepcionDistribucionScreen = () => {
     }
   };
 
-  const handlePdf = (_item: DistribucionItem) => {
-    // TODO: descargar PDF de recepción
+  const handlePdf = (item: DistribucionItem) => {
+    descargarPdf(
+      {
+        TipoReporte:               TIPO_REPORTE.ORDEN_DISTRIBUCION,
+        ID_RecepcionDistribucion:  Number(item.ID_RecepcionDistribucion),
+        ID_RecepcionEntregaDirecta: 0,
+        ID_EntregaCentroCosto:      0,
+        ID_ConsignacionDirecta:     0,
+      },
+      `recepcion_${item.FolioRecepcion}`,
+    );
   };
 
   const handleExportar = () => {
-    // TODO: exportar listado
+    descargarPdf(
+      {
+        TipoReporte: TIPO_REPORTE.LISTADO_ORDENES_DISTRIBUCION,
+        Anio:        Number(filtros.anio),
+        Mes:         filtros.mes?.id,
+        Status:      filtros.estatus === 'Recibidas' ? 1 : 0,
+      },
+      `listado_distribucion_${filtros.anio}_${filtros.mes?.id}`,
+    );
   };
 
   return (
@@ -139,6 +161,16 @@ const RecepcionDistribucionScreen = () => {
         />
       </View>
 
+      {/* Overlay bloqueante durante descarga de PDF */}
+      {loadingPdf && (
+        <View style={styles.pdfOverlay} pointerEvents="box-only">
+          <View style={styles.pdfLoaderBox}>
+            <ActivityIndicator size="large" color="#1C57B5" />
+            <Text style={styles.pdfLoaderText}>Generando PDF...</Text>
+          </View>
+        </View>
+      )}
+
     </View>
   );
 };
@@ -180,6 +212,26 @@ const styles = StyleSheet.create({
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(248,250,252,0.5)',
+  },
+  pdfOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    alignItems:      'center',
+    justifyContent:  'center',
+  },
+  pdfLoaderBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius:    12,
+    paddingVertical:   24,
+    paddingHorizontal: 32,
+    alignItems:      'center',
+    gap:             12,
+    elevation:       8,
+  },
+  pdfLoaderText: {
+    fontSize:   14,
+    color:      '#1E293B',
+    fontWeight: '500',
   },
 });
 

@@ -11,7 +11,7 @@ import ComboBox from '@/shared/components/ui/ComboBox';
 import { MESES, FOLIO_OPCIONES } from '../types';
 import type { DistribucionFiltros, FolioTipoOption } from '../types';
 
-import IcFiltro   from '@/assets/icons/ui/filtro.png';
+import IcFiltro   from '@/assets/icons/ui/filter.svg';
 import IcExportar from '@/assets/icons/ui/download.svg';
 
 interface Props {
@@ -103,7 +103,8 @@ const DistribucionFiltrosBar: React.FC<Props> = ({
           activeOpacity={0.7}
         >
           {/* <Image source={IcFiltro} style={styles.iconImg} /> */}
-          <Text style={[styles.iconText, expandido && styles.iconTextActive]}>⚙</Text>
+          {/* <Text style={[styles.iconText, expandido && styles.iconTextActive]}>⚙</Text> */}
+          <IcFiltro width={18} height={18} color={expandido ? '#3B82F6' : '#64748B'} />
         </TouchableOpacity>
 
         {/* Botón exportar */}
