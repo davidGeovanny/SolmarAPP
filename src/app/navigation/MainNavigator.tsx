@@ -11,6 +11,7 @@ import RecepcionDistribucionScreen  from '@/features/recepcion-distribucion/scre
 import RecepcionDistribucionDetalle from '@/features/recepcion-distribucion/screens/RecepcionDistribucionDetalle';
 import RecepcionDistribucionForm    from '@/features/recepcion-distribucion/screens/RecepcionDistribucionForm';
 import EntregaDirectaScreen     from '@/features/entrega-directa/screens/EntregaDirectaScreen';
+import EntregaDirectaDetalle    from '@/features/entrega-directa/screens/EntregaDirectaDetalle';
 import EntregaDirectaForm       from '@/features/entrega-directa/screens/EntregaDirectaForm';
 import EntregaMercanciaScreen   from '@/features/entrega-mercancia/screens/EntregaMercanciaScreen';
 import EntregaMercanciaForm     from '@/features/entrega-mercancia/screens/EntregaMercanciaForm';
@@ -27,7 +28,7 @@ type RecepDistStack       = {
   RecepcionDistribucionDetalle: { item: DistribucionItem };
   RecepcionDistribucionForm:    { item: DistribucionItem };
 };
-type EntregaDirStack      = { EntregaDirecta: undefined; EntregaDirectaForm: undefined };
+type EntregaDirStack      = { EntregaDirecta: undefined; EntregaDirectaDetalle: { item: import('@/features/entrega-directa/types').EntregaDirectaItem }; EntregaDirectaForm: { item: import('@/features/entrega-directa/types').EntregaDirectaItem } };
 type EntregaMercStack     = { EntregaMercancia: undefined; EntregaMercanciaForm: undefined };
 type ConsignacionStack    = { ConsignacionDirecta: undefined; ConsignacionDirectaForm: undefined };
 
@@ -65,8 +66,9 @@ const RecepDistSt = () => (
 
 const EntregaDirSt = () => (
   <EntregaDirStack.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
-    <EntregaDirStack.Screen name="EntregaDirecta"     component={EntregaDirectaScreen} />
-    <EntregaDirStack.Screen name="EntregaDirectaForm" component={EntregaDirectaForm} options={FORM_OPTIONS} />
+    <EntregaDirStack.Screen name="EntregaDirecta"        component={EntregaDirectaScreen}  />
+    <EntregaDirStack.Screen name="EntregaDirectaDetalle" component={EntregaDirectaDetalle} options={FORM_OPTIONS} />
+    <EntregaDirStack.Screen name="EntregaDirectaForm"    component={EntregaDirectaForm}    options={FORM_OPTIONS} />
   </EntregaDirStack.Navigator>
 );
 
