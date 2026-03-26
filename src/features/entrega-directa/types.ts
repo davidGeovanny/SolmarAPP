@@ -57,3 +57,25 @@ export interface EntregaDirectaDetalleResponse {
   Data:    EntregaDirectaDetalle[];
   Success: true;
 }
+
+// ─── Tipos del formulario de recepción ───────────────────────────────────────
+
+export interface EntregaDirectaProductoForm {
+  ID_OrdenCompraDetalle: string;
+  ID_OrdenCompra:        string;
+  ID_Producto:           string;
+  CodigoProducto:        string;
+  NombreProducto:        string;
+  CantidadASurtir:       string;
+  MaximoASurtir:         string;
+  CostoUnitario:         string;
+  // Campos locales
+  CantidadRecibir:       string;
+  Observaciones:         string;
+}
+
+export interface EntregaDirectaProductosFormResponse {
+  Count:   number;
+  Data:    Omit<EntregaDirectaProductoForm, 'CantidadRecibir' | 'Observaciones'>[];
+  Success: true;
+}
